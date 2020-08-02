@@ -1,6 +1,8 @@
 from config import BOT, DATABASE
 from player import Player
+from enemy import Goblin
 import inline_keyboards as ikb
+import time
 
 
 # Обработка комманды /start
@@ -47,8 +49,14 @@ def telegramrpg(message):
     if text.lower() == 'персонаж':
         BOT.send_message(user_id, str(DATABASE.players[user_id]), reply_markup=ikb.person)
     elif text.lower() == 'локации':
-        DATABASE.players[message.chat.id].change_keyboard('TelegramRPG.locations.locations')
+        DATABASE.players[user_id].change_keyboard('TelegramRPG.locations.locations')
         BOT.send_message(user_id, 'Выбери локацию', reply_markup=DATABASE.players[user_id].keyboard)
+    elif text.lower() == 'лес смерти':
+        DATABASE.players[user_id].change_keyboard('TelegramRPG.locations.forest_of_death')
+        BOT.send_message(user_id, 'Добро пожаловать в Лес смерти', reply_markup=DATABASE.players[user_id].keyboard)
+    elif text.lower() == 'гоблин':
+        info = Goblin().info()
+        BOT.send_message(user_id, info, reply_markup=ikb.goblin)
     elif text.lower() == 'назад':
         back_telegramrpg(user_id, DATABASE.players[user_id].current_keyboard)
     else:
@@ -105,3 +113,23 @@ def inline_keyboards_handler(call):
         BOT.send_message(user_id, 'Введите новое имя')
         BOT.register_next_step_handler(call.message, DATABASE.players[user_id].change_name)
         BOT.send_message(user_id, 'Имя изменено')
+
+    elif call.data == 'attack_goblin':
+        if not DATABASE.players[user_id].is_death:
+            result = DATABASE.players[user_id].mob_attack(Goblin())
+            if result == 'kill':
+                text = f'Вы убили гоблина\nВаше здоровье:' \
+                       f' {DATABASE.players[user_id].health} / {DATABASE.players[user_id].max_health}'
+                BOT.send_message(user_id, text)
+            elif result == 'death':
+                all_time = DATABASE.players[user_id].time_for_resurrect
+                text = f'Вы погибли\n' \
+                       f'Возрождение через:' \
+                       f' {int(all_time - (time.time() - DATABASE.players[user_id].time_to_start_resurrect))}'
+                BOT.send_message(user_id, text)
+        else:
+            all_time = DATABASE.players[user_id].time_for_resurrect
+            text = f'Вы погибли\n' \
+                   f'Возрождение через:' \
+                   f' {int(all_time - (time.time() - DATABASE.players[user_id].time_to_start_resurrect))}'
+            BOT.send_message(user_id, text)

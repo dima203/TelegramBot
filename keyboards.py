@@ -26,7 +26,7 @@ class Location:
 class TelegramRPG:
     main = telebot.types.ReplyKeyboardMarkup(True)
     main.row('Персонаж', 'Инвентарь', 'Квесты', 'Локации')
-    main.row('Арена', 'Таблица лидеров')
+    main.row('Арена', 'Таблица лидеров', 'Достижения')
     main.row('Назад')
 
     locations = Location()
