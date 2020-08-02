@@ -4,7 +4,7 @@ import secret
 
 
 # Создание бота по токену из BotFather
-BOT = Bot(secret.token)
+BOT = Bot(secret.token) #<--- Свой токен подставлять сюда в ковычках. Пример: "Ваш токен" 
 
 # Открытие "базы данных"
 DATABASE = DataBase('Players.data')
