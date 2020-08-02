@@ -2,18 +2,20 @@
 #                   Bot by dima203
 #               @TestMyNewTelegramBot
 # ---------------------------------------------------------------------------------------------------------------------
-from config import BOT
 from handlers import *
 
 
+# Основной цикл
 def main():
     try:
+        # Запуск цикла
         BOT.polling()
     except Exception as e:
-        print(e)
+        # Вызов ошибки при наличии
+        raise e
     finally:
-        print(1)
-        config.DATABASE.safe_changes()
+        # При завершении сохранить БД
+        DATABASE.safe_changes()
 
 
 if __name__ == '__main__':

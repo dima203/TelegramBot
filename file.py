@@ -1,5 +1,5 @@
 import pickle
-from Player import Player
+from player import Player
 
 
 # Класс базы данных
@@ -19,11 +19,14 @@ class DataBase:
             pickle.dump(self.players, self.file)
             self.file.close()
 
+# Сохранение изменений БД
     def safe_changes(self):
         self.file = open(self.name, 'wb')
         pickle.dump(self.players, self.file)
         self.file.close()
 
+# Пересоздание БД с 1 элементом Админа
+# При желании можно вместо нуля поставить свой id
     def remake_database(self):
         self.players = {
             0: Player('Admin', 'Admin')

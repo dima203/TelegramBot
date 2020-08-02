@@ -7,7 +7,8 @@ import secret
 BOT = Bot(secret.token)
 
 # Открытие "базы данных"
-DATABASE = DataBase('1.data')
+DATABASE = DataBase('Players.data')
 
+# Пересоздание базы данных
 if __name__ == '__main__':
     DATABASE.remake_database()
