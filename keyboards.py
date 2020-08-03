@@ -18,7 +18,7 @@ class Location:
     locations.row('Назад')
 
     forest_of_death = telebot.types.ReplyKeyboardMarkup(True)
-    forest_of_death.row('Гоблин')
+    forest_of_death.row('Гоблин', 'Скелет')
     forest_of_death.row('Назад')
 
 

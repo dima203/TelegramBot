@@ -1,6 +1,6 @@
 from config import BOT, DATABASE
 from player import Player
-from enemy import Goblin
+from enemy import Enemy, Goblin, Skeleton
 import inline_keyboards as ikb
 import time
 
@@ -57,6 +57,9 @@ def telegramrpg(message):
     elif text.lower() == 'гоблин':
         info = Goblin().info()
         BOT.send_message(user_id, info, reply_markup=ikb.goblin)
+    elif text.lower() == 'скелет':
+        info = Skeleton().info()
+        BOT.send_message(user_id, info, reply_markup=ikb.skeleton)
     elif text.lower() == 'назад':
         back_telegramrpg(user_id, DATABASE.players[user_id].current_keyboard)
     else:
@@ -113,16 +116,24 @@ def inline_keyboards_handler(call):
         BOT.send_message(user_id, 'Введите новое имя')
         BOT.register_next_step_handler(call.message, DATABASE.players[user_id].change_name, BOT)
 
-    elif call.data == 'attack_goblin':
+    elif call.data.startswith('attack'):
         if not DATABASE.players[user_id].is_death:
-            result = DATABASE.players[user_id].mob_attack(Goblin())
+            result = 'none'
+            enemy = Enemy()
+
+            if 'goblin' in call.data:
+                enemy = Goblin()
+                result = DATABASE.players[user_id].mob_attack(enemy)
+            elif 'skeleton' in call.data:
+                enemy = Skeleton()
+                result = DATABASE.players[user_id].mob_attack(enemy)
 
             if result[0] == 'kill':
-                text = f'Вы убили гоблина\n' \
+                text = f'Вы победили\n' \
                        f'Вы получили {result[1]} опыта\n' \
                        f'Ваше здоровье:' \
                        f' {round(DATABASE.players[user_id].health, 2)} / {DATABASE.players[user_id].max_health}'
-                BOT.send_message(user_id, text, reply_markup=ikb.goblin)
+                BOT.send_message(user_id, text, reply_markup=enemy.keyboard)
 
                 if result[2]:
                     text = f'Вы получили новый уровень:\n' \
@@ -138,11 +149,18 @@ def inline_keyboards_handler(call):
                     minutes = need_time // 60
                     need_time -= minutes * 60
                     need_time = f'{minutes} : {need_time}'
+                elif need_time < 10:
+                    need_time = f'0 : 0{need_time}'
+                else:
+                    need_time = f'0 : {need_time}'
 
                 text = f'Вы погибли\n' \
                        f'Возрождение через:' \
                        f' {need_time}'
                 BOT.send_message(user_id, text)
+
+            elif result == 'none':
+                error(call.message)
         else:
             need_time = int(DATABASE.players[user_id].time_for_resurrect -
                             (time.time() - DATABASE.players[user_id].time_to_start_resurrect))
@@ -150,6 +168,10 @@ def inline_keyboards_handler(call):
                 minutes = need_time // 60
                 need_time -= minutes * 60
                 need_time = f'{minutes} : {need_time}'
+            elif need_time < 10:
+                need_time = f'0 : 0{need_time}'
+            else:
+                need_time = f'0 : {need_time}'
 
             text = f'Вы погибли\n' \
                    f'Возрождение через:' \

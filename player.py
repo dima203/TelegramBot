@@ -2,7 +2,6 @@ import keyboards as kb
 from calculating import calculate_armor
 import time
 from threading import Timer
-from random import randint
 import levels
 
 
