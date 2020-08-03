@@ -19,9 +19,9 @@ def next_level(player):
 
 
 def add_stats(player):
-    add_health = calculate_exponential_grow_with_round(50, 1.05, player.level)
-    add_damage = calculate_exponential_grow_with_round(3, 1.05, player.level)
-    add_health_per_second = calculate_exponential_grow(0.5, 1.05, player.level)
+    add_health = calculate_exponential_grow_with_round(50, 1.03, player.level)
+    add_damage = calculate_exponential_grow_with_round(3, 1.03, player.level)
+    add_health_per_second = calculate_exponential_grow(0.5, 1.01, player.level)
 
     player.max_health += add_health
     player.health_per_second += add_health_per_second

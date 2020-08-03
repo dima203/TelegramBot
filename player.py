@@ -70,12 +70,13 @@ class Player:
 
         else:
             if self.health <= 0:
+                self.health = 0
                 self.is_death = True
                 self.resurrect_timer()
                 return 'death', 0, 0
 
             elif other.health <= 0:
-                add_exp = randint(other.exp - 10, other.exp + 10)
+                add_exp = other.get_exp(self.level)
                 self.current_exp += add_exp
                 next_level = levels.next_level(self)
                 return 'kill', add_exp, next_level
