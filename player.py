@@ -29,13 +29,15 @@ class Player:
         self.string = f'''Имя: {self.name}
 Уровень: {self.level}
 Опыт: {self.current_exp} / {levels.levels[self.level]}
-Здоровье: {self.health} / {self.max_health}
+Здоровье: {round(self.health, 2)} / {self.max_health}
+Регенерация: {round(self.health_per_second, 2)} здоровья в секунду
 Атака: {self.damage}
 Броня: {self.armor}'''
         return self.string
 
-    def change_name(self, message):
+    def change_name(self, message, bot):
         self.name = message.text
+        bot.send_message(message.chat.id, 'Имя изменено')
 
     def change_keyboard(self, name):
         self.keyboard = kb.return_keyboard(name)
@@ -47,6 +49,7 @@ class Player:
     def heal(self):
         if self.health < self.max_health:
             self.health += self.health_per_second
+            self.health = self.health
             if self.health > self.max_health:
                 self.health = self.max_health
 
@@ -72,7 +75,7 @@ class Player:
                 return 'death', 0, 0
 
             elif other.health <= 0:
-                add_exp = randint(other.exp - 5, other.exp + 5)
+                add_exp = randint(other.exp - 10, other.exp + 10)
                 self.current_exp += add_exp
                 next_level = levels.next_level(self)
                 return 'kill', add_exp, next_level

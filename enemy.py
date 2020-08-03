@@ -24,4 +24,4 @@ class Goblin(Enemy):
         self.health = 50
         self.damage = 3
         self.armor = 0
-        self.exp = 50
+        self.exp = 40

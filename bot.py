@@ -14,8 +14,8 @@ def heal():
 
 # Основной цикл
 def main():
+    timer = RepeatedTimer(1, heal)
     try:
-        timer = RepeatedTimer(1, heal)
         timer.start()
 
         # Запуск цикла
