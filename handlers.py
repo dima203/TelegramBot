@@ -117,15 +117,32 @@ def inline_keyboards_handler(call):
     elif call.data == 'attack_goblin':
         if not DATABASE.players[user_id].is_death:
             result = DATABASE.players[user_id].mob_attack(Goblin())
-            if result == 'kill':
-                text = f'Вы убили гоблина\nВаше здоровье:' \
+
+            if result[0] == 'kill':
+                text = f'Вы убили гоблина\n' \
+                       f'Вы получили {result[1]} опыта\n' \
+                       f'Ваше здоровье:' \
                        f' {DATABASE.players[user_id].health} / {DATABASE.players[user_id].max_health}'
-                BOT.send_message(user_id, text)
-            elif result == 'death':
-                all_time = DATABASE.players[user_id].time_for_resurrect
+                BOT.send_message(user_id, text, reply_markup=ikb.goblin)
+
+                if result[2]:
+                    text = f'Вы получили новый уровень:\n' \
+                           f'Ваш уровень: {DATABASE.players[user_id].level}\n' \
+                           f'Здоровье: {DATABASE.players[user_id].max_health} + {result[2][0]}\n' \
+                           f'Урон: {DATABASE.players[user_id].damage} + {result[2][1]}'
+                    BOT.send_message(user_id, text)
+
+            elif result[0] == 'death':
+                need_time = int(DATABASE.players[user_id].time_for_resurrect -
+                                (time.time() - DATABASE.players[user_id].time_to_start_resurrect))
+                if need_time > 60:
+                    minutes = need_time // 60
+                    need_time -= minutes * 60
+                    need_time = f'{minutes} : {need_time}'
+
                 text = f'Вы погибли\n' \
                        f'Возрождение через:' \
-                       f' {int(all_time - (time.time() - DATABASE.players[user_id].time_to_start_resurrect))}'
+                       f' {need_time}'
                 BOT.send_message(user_id, text)
         else:
             all_time = DATABASE.players[user_id].time_for_resurrect

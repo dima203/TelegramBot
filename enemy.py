@@ -6,6 +6,7 @@ class Enemy:
         self.health = 0
         self.damage = 0
         self.armor = 0
+        self.exp = 0
 
     def info(self):
         string = f'''Здоровье: {self.health}
@@ -23,3 +24,4 @@ class Goblin(Enemy):
         self.health = 50
         self.damage = 3
         self.armor = 0
+        self.exp = 50

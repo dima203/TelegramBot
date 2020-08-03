@@ -2,6 +2,8 @@ import keyboards as kb
 from calculating import calculate_armor
 import time
 from threading import Timer
+from random import randint
+import levels
 
 
 class Player:
@@ -16,6 +18,7 @@ class Player:
         self.armor = 0
         self.level = 1
         self.current_exp = 0
+        self.exp_to_next_level = 1000
         self.keyboard = kb.return_keyboard('main')
         self.current_keyboard = 'main'
         self.time_to_start_resurrect = 0
@@ -25,6 +28,7 @@ class Player:
     def __str__(self):
         self.string = f'''Имя: {self.name}
 Уровень: {self.level}
+Опыт: {self.current_exp} / {levels.levels[self.level]}
 Здоровье: {self.health} / {self.max_health}
 Атака: {self.damage}
 Броня: {self.armor}'''
@@ -36,6 +40,9 @@ class Player:
     def change_keyboard(self, name):
         self.keyboard = kb.return_keyboard(name)
         self.current_keyboard = name
+
+    def next_level(self):
+        return levels.add_stats(self)
 
     def heal(self):
         if self.health < self.max_health:
@@ -57,10 +64,15 @@ class Player:
         while other.health > 0 and self.health > 0:
             self.health -= int(other.damage * (1 - calculate_armor(self.armor)))
             other.attack(self.damage)
+
         else:
             if self.health <= 0:
                 self.is_death = True
                 self.resurrect_timer()
-                return 'death'
+                return 'death', 0, 0
+
             elif other.health <= 0:
-                return 'kill'
+                add_exp = randint(other.exp - 5, other.exp + 5)
+                self.current_exp += add_exp
+                next_level = levels.next_level(self)
+                return 'kill', add_exp, next_level
