@@ -17,7 +17,7 @@ def heal():
 def main():
 
     # Проверка наличия изменений в классе игрока
-    local_player = Player()
+    local_player = Player(0, 'local')
     for i in DATABASE.players:
         for attr in dir(local_player):
             if hasattr(DATABASE.players[i], attr):
