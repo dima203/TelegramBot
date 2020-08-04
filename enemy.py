@@ -4,6 +4,7 @@ import math
 import inline_keyboards as ikb
 
 
+# Родительский класс всех мобов
 class Enemy:
     def __init__(self):
         self.level = 0
@@ -13,23 +14,28 @@ class Enemy:
         self.exp = 0
         self.keyboard = 0
 
+    # Информация о мобе
     def info(self):
         string = f'''Здоровье: {self.health}
 Атака: {self.damage}
 Броня: {self.armor}'''
         return string
 
+    # Метод для получения урона от игрока
     def attack(self, damage):
         self.health -= damage * (1 - calculate_armor(self.armor))
 
+    # Метод для подсчета выдаваемого опыта за убийство
     def get_exp(self, player_level):
-        exp = randint(self.exp - 5, self.exp + 5)
+        percent = self.exp * 0.1
+        exp = randint(self.exp - percent, self.exp + percent)
         x = player_level - self.level + 1
         if x <= 0:
             x = 1
         return round(-math.log(x, 1.1) + exp)
 
 
+# Класс Гоблина
 class Goblin(Enemy):
     def __init__(self):
         super().__init__()
@@ -41,6 +47,7 @@ class Goblin(Enemy):
         self.keyboard = ikb.goblin
 
 
+# Класс Скелета
 class Skeleton(Enemy):
     def __init__(self):
         super().__init__()
@@ -49,4 +56,16 @@ class Skeleton(Enemy):
         self.damage = 10
         self.armor = 2
         self.exp = 70
+        self.keyboard = ikb.skeleton
+
+
+# Класс Энта
+class Ent(Enemy):
+    def __init__(self):
+        super().__init__()
+        self.level = 7
+        self.health = 350
+        self.damage = 15
+        self.armor = 5
+        self.exp = 130
         self.keyboard = ikb.skeleton

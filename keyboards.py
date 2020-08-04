@@ -1,6 +1,10 @@
 import telebot
 
 
+# Клавиатура старт. Появляется если игрока нет в БД
+start = telebot.types.ReplyKeyboardMarkup(True)
+start.row('/start')
+
 # Основная клавиатура. Появляется после комманды /start
 main = telebot.types.ReplyKeyboardMarkup(True)
 main.row('Игры')
@@ -11,14 +15,14 @@ games.row('TelegramRPG')
 games.row('Назад')
 
 
-# ---
+# Класс клавиатур для локаций
 class Location:
     locations = telebot.types.ReplyKeyboardMarkup(True)
     locations.row('Лес смерти')
     locations.row('Назад')
 
     forest_of_death = telebot.types.ReplyKeyboardMarkup(True)
-    forest_of_death.row('Гоблин', 'Скелет')
+    forest_of_death.row('Гоблин', 'Скелет', 'Энт')
     forest_of_death.row('Назад')
 
 

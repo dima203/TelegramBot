@@ -1,14 +1,17 @@
 from calculating import calculate_exponential_grow, calculate_exponential_grow_with_round
 
 
+# Создание словаря типа уровень: опыт для перехода на следующий
 levels = {
     1: 1000,
 }
 
+# Внесение значений
 for i in range(99):
     levels[i + 1] = calculate_exponential_grow_with_round(1000, 1.2, i)
 
 
+# Проверка перехода на следующий уровень
 def next_level(player):
     if player.current_exp >= levels[player.level]:
         player.current_exp -= levels[player.level]
@@ -18,6 +21,7 @@ def next_level(player):
         return False
 
 
+# Добавление характеристик за уровень персонажа
 def add_stats(player):
     add_health = calculate_exponential_grow_with_round(50, 1.03, player.level)
     add_damage = calculate_exponential_grow_with_round(3, 1.03, player.level)

@@ -9,11 +9,13 @@ class DataBase:
         self.name = name
 
         try:
+            # Загрузка игроков
             self.file = open(self.name, 'rb')
             self.players = pickle.load(self.file)
             self.file.close()
 
         except FileNotFoundError:
+            # При отсутствии файла создаёт новый
             self.file = open(self.name, 'wb')
             self.players = {0: Player('Admin', 'Admin')}
             pickle.dump(self.players, self.file)

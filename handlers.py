@@ -1,20 +1,28 @@
 from config import BOT, DATABASE
 from player import Player
-from enemy import Enemy, Goblin, Skeleton
+from enemy import Enemy, Goblin, Skeleton, Ent
+from keyboards import start
 import inline_keyboards as ikb
 import time
 
 
-# Обработка комманды /start
+# Обработка команды /start
 @BOT.message_handler(commands=['start'])
 def start_message(message):
     user_id = message.chat.id
-
+    # Внесение новых игроков в БД
     if not(user_id in DATABASE.players):
         DATABASE.players[user_id] = Player(user_id, message.chat.username)
         DATABASE.safe_changes()
     BOT.send_message(user_id, 'Давай начнем',
                      reply_markup=DATABASE.players[user_id].keyboard)
+
+
+# Проверка наличия игрока в БД
+@BOT.message_handler(func=lambda message: False if message.chat.id in DATABASE.players else True,
+                     content_types=['text'])
+def warning(message):
+    BOT.send_message(message.chat.id, 'Напишите команду /start', reply_markup=start)
 
 
 # Обработка команды Игры
@@ -26,7 +34,7 @@ def games(message):
                      reply_markup=DATABASE.players[message.chat.id].keyboard)
 
 
-# Обработка комманды TelegramRPG
+# Обработка команды TelegramRPG
 @BOT.message_handler(func=lambda message: True if message.text.lower() == 'telegramrpg' else False,
                      content_types=['text'])
 def game_telegramrpg(message):
@@ -60,6 +68,9 @@ def telegramrpg(message):
     elif text.lower() == 'скелет':
         info = Skeleton().info()
         BOT.send_message(user_id, info, reply_markup=ikb.skeleton)
+    elif text.lower() == 'энт':
+        info = Skeleton().info()
+        BOT.send_message(user_id, info, reply_markup=ikb.ent)
     elif text.lower() == 'назад':
         back_telegramrpg(user_id, DATABASE.players[user_id].current_keyboard)
     else:
@@ -86,11 +97,12 @@ def back(message):
 # Обработка остальных текстовых сообщений
 @BOT.message_handler(content_types=['text'])
 def error(message):
-    print(message.text)
-    print(DATABASE.players[message.chat.id].current_keyboard)
+    print(message.text)  # Отладочные сообщения
+    print(DATABASE.players[message.chat.id].current_keyboard)  # Отладочные сообщения
     BOT.send_message(message.chat.id, 'Я даже не знаю, что вам сказать...')
 
 
+# Обработка команды назад для игры TelegramRPG
 def back_telegramrpg(user_id, keyboard):
     if keyboard == 'TelegramRPG.main':
         keyboard = 'games'
@@ -107,6 +119,7 @@ def back_telegramrpg(user_id, keyboard):
                      reply_markup=DATABASE.players[user_id].keyboard)
 
 
+# Обработка инлайн клавиатур
 @BOT.callback_query_handler(func=lambda call: True)
 def inline_keyboards_handler(call):
     BOT.answer_callback_query(callback_query_id=call.id)
@@ -126,6 +139,9 @@ def inline_keyboards_handler(call):
                 result = DATABASE.players[user_id].mob_attack(enemy)
             elif 'skeleton' in call.data:
                 enemy = Skeleton()
+                result = DATABASE.players[user_id].mob_attack(enemy)
+            elif 'ent' in call.data:
+                enemy = Ent()
                 result = DATABASE.players[user_id].mob_attack(enemy)
 
             if result[0] == 'kill':

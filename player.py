@@ -5,8 +5,8 @@ from threading import Timer
 import levels
 
 
+# Класс игрока
 class Player:
-
     def __init__(self, user_id, name):
         self.id = user_id
         self.name = name
@@ -17,13 +17,13 @@ class Player:
         self.armor = 0
         self.level = 1
         self.current_exp = 0
-        self.exp_to_next_level = 1000
         self.keyboard = kb.return_keyboard('main')
         self.current_keyboard = 'main'
         self.time_to_start_resurrect = 0
         self.time_for_resurrect = 3
         self.is_death = False
 
+    # Информация об игроке
     def __str__(self):
         self.string = f'''Имя: {self.name}
 Уровень: {self.level}
@@ -34,17 +34,21 @@ class Player:
 Броня: {self.armor}'''
         return self.string
 
+    # Метод для смены имени
     def change_name(self, message, bot):
         self.name = message.text
         bot.send_message(message.chat.id, 'Имя изменено')
 
+    # Метод для смены клавиатуры
     def change_keyboard(self, name):
         self.keyboard = kb.return_keyboard(name)
         self.current_keyboard = name
 
+    # Метод для перехода на новый уровень
     def next_level(self):
         return levels.add_stats(self)
 
+    # Метод для востановления здоровья
     def heal(self):
         if self.health < self.max_health:
             self.health += self.health_per_second
@@ -52,22 +56,27 @@ class Player:
             if self.health > self.max_health:
                 self.health = self.max_health
 
+    # Метод для возрождения
     def resurrect(self):
         self.health = int(self.max_health * 0.1)
         self.is_death = False
 
+    # Метод для создания таймера на возрождение
     def resurrect_timer(self):
         self.time_to_start_resurrect = time.time()
         self.time_for_resurrect = self.level * 3
         timer = Timer(self.time_for_resurrect, self.resurrect)
         timer.start()
 
+    # Метод для битвы с мобом
     def mob_attack(self, other):
+        # Цикл битвы до смерти
         while other.health > 0 and self.health > 0:
             self.health -= int(other.damage * (1 - calculate_armor(self.armor)))
             other.attack(self.damage)
 
         else:
+            # Проверка на смерть кого-либо
             if self.health <= 0:
                 self.health = 0
                 self.is_death = True

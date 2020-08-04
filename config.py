@@ -4,6 +4,7 @@ import secret
 import subprocess
 
 
+# Загрузка PyTelegramBotAPI
 subprocess.run("pip3 install --upgrade PyTelegramBotAPI", shell=True)
 
 # Создание бота по токену из BotFather
