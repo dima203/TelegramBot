@@ -20,15 +20,13 @@ def main():
     local_player = Player(0, 'local')
     for i in DATABASE.players:
         for attr in dir(local_player):
-            if hasattr(DATABASE.players[i], attr):
+            if not hasattr(DATABASE.players[i], attr):
                 DATABASE.players[i].attr = eval(f'local_player.{attr}')
     del local_player
 
     # Создание таймера для лечения игроков
     timer = RepeatedTimer(1, heal)
     try:
-        # Старт таймера для лечения игроков
-        timer.start()
         # Запуск цикла
         BOT.polling()
 

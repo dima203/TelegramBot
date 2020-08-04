@@ -57,19 +57,27 @@ class Player:
                 self.health = self.max_health
 
     # Метод для возрождения
-    def resurrect(self):
+    def resurrect(self, bot):
         self.health = int(self.max_health * 0.1)
         self.is_death = False
+        bot.send_message(self.id, 'Вы возродились')
 
     # Метод для создания таймера на возрождение
-    def resurrect_timer(self):
+    def resurrect_timer(self, bot):
         self.time_to_start_resurrect = time.time()
         self.time_for_resurrect = self.level * 3
-        timer = Timer(self.time_for_resurrect, self.resurrect)
-        timer.start()
+        timer = Timer(self.time_for_resurrect, self.resurrect, [bot])
+
+        try:
+            timer.start()
+
+        except Exception as e:
+            timer.cancel()
+            self.resurrect(bot)
+            print(e)
 
     # Метод для битвы с мобом
-    def mob_attack(self, other):
+    def mob_attack(self, other, bot):
         # Цикл битвы до смерти
         while other.health > 0 and self.health > 0:
             self.health -= int(other.damage * (1 - calculate_armor(self.armor)))
@@ -80,7 +88,7 @@ class Player:
             if self.health <= 0:
                 self.health = 0
                 self.is_death = True
-                self.resurrect_timer()
+                self.resurrect_timer(bot)
                 return 'death', 0, 0
 
             elif other.health <= 0:

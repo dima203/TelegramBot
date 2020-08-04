@@ -1,6 +1,6 @@
 from config import BOT, DATABASE
 from player import Player
-from enemy import Enemy, Goblin, Skeleton, Ent
+from enemy import Goblin, Skeleton, Ent
 from keyboards import start
 import inline_keyboards as ikb
 import time
@@ -69,7 +69,7 @@ def telegramrpg(message):
         info = Skeleton().info()
         BOT.send_message(user_id, info, reply_markup=ikb.skeleton)
     elif text.lower() == 'энт':
-        info = Skeleton().info()
+        info = Ent().info()
         BOT.send_message(user_id, info, reply_markup=ikb.ent)
     elif text.lower() == 'назад':
         back_telegramrpg(user_id, DATABASE.players[user_id].current_keyboard)
@@ -120,7 +120,8 @@ def back_telegramrpg(user_id, keyboard):
 
 
 # Обработка инлайн клавиатур
-@BOT.callback_query_handler(func=lambda call: True)
+@BOT.callback_query_handler(func=lambda call: True if call.message.chat.id in DATABASE.players
+                            else warning(call.message))
 def inline_keyboards_handler(call):
     BOT.answer_callback_query(callback_query_id=call.id)
     user_id = call.message.chat.id
@@ -131,18 +132,19 @@ def inline_keyboards_handler(call):
 
     elif call.data.startswith('attack'):
         if not DATABASE.players[user_id].is_death:
-            result = 'none'
-            enemy = Enemy()
+            enemy = 'none'
 
             if 'goblin' in call.data:
                 enemy = Goblin()
-                result = DATABASE.players[user_id].mob_attack(enemy)
             elif 'skeleton' in call.data:
                 enemy = Skeleton()
-                result = DATABASE.players[user_id].mob_attack(enemy)
             elif 'ent' in call.data:
                 enemy = Ent()
-                result = DATABASE.players[user_id].mob_attack(enemy)
+
+            if enemy == 'none':
+                result = 'none'
+            else:
+                result = DATABASE.players[user_id].mob_attack(enemy, BOT)
 
             if result[0] == 'kill':
                 text = f'Вы победили\n' \
@@ -184,6 +186,9 @@ def inline_keyboards_handler(call):
                 minutes = need_time // 60
                 need_time -= minutes * 60
                 need_time = f'{minutes} : {need_time}'
+            elif need_time < 0:
+                DATABASE.players[user_id].resurrect(BOT)
+                return 0
             elif need_time < 10:
                 need_time = f'0 : 0{need_time}'
             else:

@@ -16,10 +16,11 @@ class DataBase:
 
         except FileNotFoundError:
             # При отсутствии файла создаёт новый
-            self.file = open(self.name, 'wb')
-            self.players = {0: Player('Admin', 'Admin')}
-            pickle.dump(self.players, self.file)
-            self.file.close()
+            self.remake_database()
+
+        except EOFError:
+            # При отсутствии данных в файле пересоздаёи заново
+            self.remake_database()
 
 # Сохранение изменений БД
     def safe_changes(self):
