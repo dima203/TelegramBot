@@ -4,6 +4,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 from handlers import *
 from timer import RepeatedTimer
+from player import Player
 
 
 # Функция лечения игроков

@@ -1,7 +1,8 @@
 from config import BOT, DATABASE
-from player import Player
+from player import Warrior, Archer, Mage
 from enemy import Goblin, Skeleton, Ent
-from keyboards import start
+import levels
+import keyboards
 import inline_keyboards as ikb
 import time
 
@@ -10,28 +11,14 @@ import time
 @BOT.message_handler(commands=['start'])
 def start_message(message):
     user_id = message.chat.id
-    # Внесение новых игроков в БД
-    if not(user_id in DATABASE.players):
-        DATABASE.players[user_id] = Player(user_id, message.chat.username)
-        DATABASE.safe_changes()
-    BOT.send_message(user_id, 'Давай начнем',
-                     reply_markup=DATABASE.players[user_id].keyboard)
-
-
-# Проверка наличия игрока в БД
-@BOT.message_handler(func=lambda message: False if message.chat.id in DATABASE.players else True,
-                     content_types=['text'])
-def warning(message):
-    BOT.send_message(message.chat.id, 'Напишите команду /start', reply_markup=start)
+    BOT.send_message(user_id, 'Давай начнем', reply_markup=keyboards.main)
 
 
 # Обработка команды Игры
 @BOT.message_handler(func=lambda message: True if message.text.lower() == 'игры' else False,
                      content_types=['text'])
 def games(message):
-    DATABASE.players[message.chat.id].change_keyboard('games')
-    BOT.send_message(message.chat.id, 'Игры',
-                     reply_markup=DATABASE.players[message.chat.id].keyboard)
+    BOT.send_message(message.chat.id, 'Игры', reply_markup=keyboards.games)
 
 
 # Обработка команды TelegramRPG
@@ -40,10 +27,19 @@ def games(message):
 def game_telegramrpg(message):
     welcome = '''Добро пожаловать в TelegramRPG
 Это захватывающая текстовая RPG'''
+    user_id = message.chat.id
 
-    DATABASE.players[message.chat.id].change_keyboard('TelegramRPG.main')
-    BOT.send_message(message.chat.id, welcome,
-                     reply_markup=DATABASE.players[message.chat.id].keyboard)
+    if not (user_id in DATABASE.players):
+        BOT.send_message(user_id, welcome)
+        BOT.send_message(user_id, 'Выбери свой класс', reply_markup=keyboards.change_class)
+        BOT.register_next_step_handler(message, change_class)
+
+
+# Проверка наличия игрока в БД
+@BOT.message_handler(func=lambda message: False if message.chat.id in DATABASE.players else True,
+                     content_types=['text'])
+def warning(message):
+    BOT.send_message(message.chat.id, 'Напишите команду /start', reply_markup=keyboards.start)
 
 
 # Обработка игры TelegramRPG
@@ -74,7 +70,7 @@ def telegramrpg(message):
     elif text.lower() == 'назад':
         back_telegramrpg(user_id, DATABASE.players[user_id].current_keyboard)
     else:
-        error(message)
+        in_process(user_id)
 
 
 # Обработка команды Назад
@@ -119,6 +115,32 @@ def back_telegramrpg(user_id, keyboard):
                      reply_markup=DATABASE.players[user_id].keyboard)
 
 
+def in_process(user_id):
+    BOT.send_message(user_id, 'В разработке')
+
+
+# Функция выбора класса
+def change_class(message):
+    user_id = message.chat.id
+
+    while True:
+        if message.text == 'Воин':
+            DATABASE.players[user_id] = Warrior(user_id, message.chat.username)
+        elif message.text == 'Лучник':
+            DATABASE.players[user_id] = Archer(user_id, message.chat.username)
+        elif message.text == 'Маг':
+            DATABASE.players[user_id] = Mage(user_id, message.chat.username)
+        else:
+            BOT.send_message(user_id, 'Не верный класс')
+            continue
+        break
+
+    DATABASE.safe_changes()
+    DATABASE.players[user_id].change_keyboard('TelegramRPG.main')
+    BOT.send_message(user_id, 'Персонаж создан\nВперед, к приключениям',
+                     reply_markup=DATABASE.players[user_id].keyboard)
+
+
 # Обработка инлайн клавиатур
 @BOT.callback_query_handler(func=lambda call: True if call.message.chat.id in DATABASE.players
                             else warning(call.message))
@@ -126,14 +148,17 @@ def inline_keyboards_handler(call):
     BOT.answer_callback_query(callback_query_id=call.id)
     user_id = call.message.chat.id
 
+    # Обработка смены имени
     if call.data == 'change_name':
         BOT.send_message(user_id, 'Введите новое имя')
         BOT.register_next_step_handler(call.message, DATABASE.players[user_id].change_name, BOT)
 
+    # Обработка атаки моба
     elif call.data.startswith('attack'):
         if not DATABASE.players[user_id].is_death:
             enemy = 'none'
 
+            # Выбор моба
             if 'goblin' in call.data:
                 enemy = Goblin()
             elif 'skeleton' in call.data:
@@ -141,25 +166,36 @@ def inline_keyboards_handler(call):
             elif 'ent' in call.data:
                 enemy = Ent()
 
+            # Проверка на ниличие моба
             if enemy == 'none':
                 result = 'none'
             else:
                 result = DATABASE.players[user_id].mob_attack(enemy, BOT)
 
-            if result[0] == 'kill':
+            if result == 'none':
+                error(call.message)
+
+            # Победа
+            elif result[0] == 'kill':
                 text = f'Вы победили\n' \
                        f'Вы получили {result[1]} опыта\n' \
                        f'Ваше здоровье:' \
                        f' {round(DATABASE.players[user_id].health, 2)} / {DATABASE.players[user_id].max_health}'
                 BOT.send_message(user_id, text, reply_markup=enemy.keyboard)
 
+                # Проверка перехода на новый уровень
                 if result[2]:
-                    text = f'Вы получили новый уровень:\n' \
-                           f'Ваш уровень: {DATABASE.players[user_id].level}\n' \
-                           f'Здоровье: {DATABASE.players[user_id].max_health} + {result[2][0]}\n' \
-                           f'Урон: {DATABASE.players[user_id].damage} + {result[2][1]}'
-                    BOT.send_message(user_id, text)
+                    next_level = result[2]
+                    while next_level:
+                        text = f'Вы получили новый уровень:\n' \
+                               f'Ваш уровень: {DATABASE.players[user_id].level}\n' \
+                               f'Сила: {DATABASE.players[user_id].strength} + {next_level[0]}\n' \
+                               f'Ловкость: {DATABASE.players[user_id].agility} + {next_level[1]}\n' \
+                               f'Интеллект: {DATABASE.players[user_id].intelligence} + {next_level[2]}'
+                        BOT.send_message(user_id, text)
+                        next_level = levels.next_level(DATABASE.players[user_id])
 
+            # Смерть
             elif result[0] == 'death':
                 need_time = int(DATABASE.players[user_id].time_for_resurrect -
                                 (time.time() - DATABASE.players[user_id].time_to_start_resurrect))
@@ -177,9 +213,8 @@ def inline_keyboards_handler(call):
                        f' {need_time}'
                 BOT.send_message(user_id, text)
 
-            elif result == 'none':
-                error(call.message)
         else:
+            # Обработка, если персонаж уже мертв
             need_time = int(DATABASE.players[user_id].time_for_resurrect -
                             (time.time() - DATABASE.players[user_id].time_to_start_resurrect))
             if need_time > 60:

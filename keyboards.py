@@ -14,6 +14,10 @@ games = telebot.types.ReplyKeyboardMarkup(True)
 games.row('TelegramRPG')
 games.row('Назад')
 
+# Клавиатура выбора класса. Появляется после выбора игры TelegramRPG
+change_class = telebot.types.ReplyKeyboardMarkup(True)
+change_class.row('Воин', 'Лучник', 'Маг')
+
 
 # Класс клавиатур для локаций
 class Location:
