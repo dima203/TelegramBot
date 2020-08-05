@@ -140,6 +140,7 @@ class Warrior(Player):
         self.strength = 10
         self.agility = 6
         self.intelligence = 2
+        self.health = self.max_health
 
     def next_level(self):
         add_strength = calculate_exponential_grow_with_round(2, 1.05, self.level)
@@ -163,6 +164,7 @@ class Archer(Player):
         self.strength = 2
         self.agility = 10
         self.intelligence = 6
+        self.health = self.max_health
 
     def next_level(self):
         add_strength = calculate_exponential_grow_with_round(2, 1.01, self.level)
@@ -186,6 +188,7 @@ class Mage(Player):
         self.strength = 6
         self.agility = 3
         self.intelligence = 10
+        self.health = self.max_health
 
     def next_level(self):
         add_strength = calculate_exponential_grow_with_round(2, 1.03, self.level)

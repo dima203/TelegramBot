@@ -31,8 +31,10 @@ def game_telegramrpg(message):
 
     if not (user_id in DATABASE.players):
         BOT.send_message(user_id, welcome)
-        BOT.send_message(user_id, 'Выбери свой класс', reply_markup=keyboards.change_class)
         BOT.register_next_step_handler(message, change_class)
+    else:
+        DATABASE.players[user_id].change_keyboard('TelegramRPG.main')
+        BOT.send_message(user_id, welcome, reply_markup=DATABASE.players[user_id].keyboard)
 
 
 # Проверка наличия игрока в БД
@@ -131,14 +133,27 @@ def change_class(message):
         elif message.text == 'Маг':
             DATABASE.players[user_id] = Mage(user_id, message.chat.username)
         else:
-            BOT.send_message(user_id, 'Не верный класс')
-            continue
+            BOT.send_message(user_id, 'Неверный класс')
+            BOT.register_next_step_handler(message, change_class)
+            return 0
         break
 
     DATABASE.safe_changes()
     DATABASE.players[user_id].change_keyboard('TelegramRPG.main')
     BOT.send_message(user_id, 'Персонаж создан\nВперед, к приключениям',
                      reply_markup=DATABASE.players[user_id].keyboard)
+
+
+#
+def confirm(message, func, keyboard, text):
+    user_id = message.chat.id
+    if message.text == 'Подтвердить':
+        BOT.send_message(user_id, text, reply_markup=keyboard)
+        BOT.register_next_step_handler(message, change_class)
+    elif message.text == 'Отмена':
+        BOT.send_message(user_id, 'Отмена', reply_markup=DATABASE.players[user_id].keyboard)
+    else:
+        BOT.send_message(user_id, 'Неверный ввод', reply_markup=DATABASE.players[user_id].keyboard)
 
 
 # Обработка инлайн клавиатур
@@ -233,3 +248,8 @@ def inline_keyboards_handler(call):
                    f'Возрождение через:' \
                    f' {need_time}'
             BOT.send_message(user_id, text)
+
+    elif call.data == 'change_class':
+        BOT.send_message(user_id, 'При смене класса вы потеряете весь прогресс\nВы уверены?',
+                         reply_markup=keyboards.confirm)
+        BOT.register_next_step_handler(call.message, confirm, change_class, keyboards.change_class, 'Выбери класс')

@@ -18,6 +18,10 @@ games.row('Назад')
 change_class = telebot.types.ReplyKeyboardMarkup(True)
 change_class.row('Воин', 'Лучник', 'Маг')
 
+#
+confirm = telebot.types.ReplyKeyboardMarkup(True)
+confirm.row('Подтвердить', 'Отмена')
+
 
 # Класс клавиатур для локаций
 class Location:
