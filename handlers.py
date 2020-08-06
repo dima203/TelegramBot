@@ -149,7 +149,7 @@ def confirm(message, func, keyboard, text):
     user_id = message.chat.id
     if message.text == 'Подтвердить':
         BOT.send_message(user_id, text, reply_markup=keyboard)
-        BOT.register_next_step_handler(message, change_class)
+        BOT.register_next_step_handler(message, func)
     elif message.text == 'Отмена':
         BOT.send_message(user_id, 'Отмена', reply_markup=DATABASE.players[user_id].keyboard)
     else:
@@ -204,9 +204,9 @@ def inline_keyboards_handler(call):
                     while next_level:
                         text = f'Вы получили новый уровень:\n' \
                                f'Ваш уровень: {DATABASE.players[user_id].level}\n' \
-                               f'Сила: {DATABASE.players[user_id].strength} + {next_level[0]}\n' \
-                               f'Ловкость: {DATABASE.players[user_id].agility} + {next_level[1]}\n' \
-                               f'Интеллект: {DATABASE.players[user_id].intelligence} + {next_level[2]}'
+                               f'Сила: {round(DATABASE.players[user_id].strength, 2)} + {next_level[0]}\n' \
+                               f'Ловкость: {round(DATABASE.players[user_id].agility, 2)} + {next_level[1]}\n' \
+                               f'Интеллект: {round(DATABASE.players[user_id].intelligence, 2)} + {next_level[2]}'
                         BOT.send_message(user_id, text)
                         next_level = levels.next_level(DATABASE.players[user_id])
 

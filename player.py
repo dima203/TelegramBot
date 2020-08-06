@@ -37,7 +37,7 @@ class Player:
         if self.main_stat == 'none':
             return 0
         else:
-            return round(eval(f'self.{self.main_stat}'))
+            return round(eval(f'self.{self.main_stat}') * (1 + 0.02 * self.agility))
 
     @property
     def armor(self):
@@ -49,9 +49,9 @@ class Player:
 Класс: {self.player_class}
 Уровень: {self.level}
 Опыт: {self.current_exp} / {levels.levels[self.level]}
-Сила: {self.strength}
-Ловкость: {self.agility}
-Интеллект: {self.intelligence}
+Сила: {round(self.strength, 2)}
+Ловкость: {round(self.agility, 2)}
+Интеллект: {round(self.intelligence, 2)}
 Здоровье: {round(self.health, 2)} / {self.max_health}
 Регенерация: {round(self.health_per_second, 2)} здоровья в секунду
 Атака: {self.damage}
@@ -70,9 +70,9 @@ class Player:
 
     # Метод для перехода на новый уровень
     def next_level(self):
-        add_strength = calculate_exponential_grow_with_round(2, 1.05, self.level)
-        add_agility = calculate_exponential_grow_with_round(2, 1.05, self.level)
-        add_intelligence = calculate_exponential_grow_with_round(2, 1.05, self.level)
+        add_strength = calculate_exponential_grow_with_round(2, 1.05, self.level, 2)
+        add_agility = calculate_exponential_grow_with_round(2, 1.05, self.level, 2)
+        add_intelligence = calculate_exponential_grow_with_round(2, 1.05, self.level, 2)
 
         self.strength += add_strength
         self.agility += add_agility
@@ -143,9 +143,9 @@ class Warrior(Player):
         self.health = self.max_health
 
     def next_level(self):
-        add_strength = calculate_exponential_grow_with_round(2, 1.05, self.level)
-        add_agility = calculate_exponential_grow_with_round(2, 1.03, self.level)
-        add_intelligence = calculate_exponential_grow_with_round(2, 1.01, self.level)
+        add_strength = calculate_exponential_grow_with_round(2, 1.05, self.level, 2)
+        add_agility = calculate_exponential_grow_with_round(2, 1.03, self.level, 2)
+        add_intelligence = calculate_exponential_grow_with_round(2, 1.01, self.level, 2)
 
         self.strength += add_strength
         self.agility += add_agility
@@ -167,9 +167,9 @@ class Archer(Player):
         self.health = self.max_health
 
     def next_level(self):
-        add_strength = calculate_exponential_grow_with_round(2, 1.01, self.level)
-        add_agility = calculate_exponential_grow_with_round(2, 1.05, self.level)
-        add_intelligence = calculate_exponential_grow_with_round(2, 1.03, self.level)
+        add_strength = calculate_exponential_grow_with_round(2, 1.01, self.level, 2)
+        add_agility = calculate_exponential_grow_with_round(2, 1.05, self.level, 2)
+        add_intelligence = calculate_exponential_grow_with_round(2, 1.03, self.level, 2)
 
         self.strength += add_strength
         self.agility += add_agility
@@ -191,9 +191,9 @@ class Mage(Player):
         self.health = self.max_health
 
     def next_level(self):
-        add_strength = calculate_exponential_grow_with_round(2, 1.03, self.level)
-        add_agility = calculate_exponential_grow_with_round(2, 1.01, self.level)
-        add_intelligence = calculate_exponential_grow_with_round(2, 1.05, self.level)
+        add_strength = calculate_exponential_grow_with_round(2, 1.03, self.level, 2)
+        add_agility = calculate_exponential_grow_with_round(2, 1.01, self.level, 2)
+        add_intelligence = calculate_exponential_grow_with_round(2, 1.05, self.level, 2)
 
         self.strength += add_strength
         self.agility += add_agility

@@ -49,11 +49,11 @@ class Goblin(Enemy):
 class Skeleton(Enemy):
     def __init__(self):
         super().__init__()
-        self.level = 3
+        self.level = 5
         self.health = 150
         self.damage = 10
         self.armor = 2
-        self.exp = 70
+        self.exp = 90
         self.keyboard = ikb.skeleton
 
 
@@ -61,9 +61,9 @@ class Skeleton(Enemy):
 class Ent(Enemy):
     def __init__(self):
         super().__init__()
-        self.level = 7
+        self.level = 10
         self.health = 350
         self.damage = 15
         self.armor = 5
-        self.exp = 130
+        self.exp = 170
         self.keyboard = ikb.skeleton
