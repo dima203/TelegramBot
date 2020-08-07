@@ -26,7 +26,9 @@ def main():
     del local_player
 
     # Создание таймера для лечения игроков
-    timer = RepeatedTimer(1, heal)
+    heal_timer = RepeatedTimer(1, heal)
+    # Создание таймера для сохранения БД
+    safe_timer = RepeatedTimer(30, DATABASE.safe_changes)
     try:
         # Запуск цикла
         BOT.polling()
@@ -37,7 +39,9 @@ def main():
 
     finally:
         # Остановка таймера для лечения игроков
-        timer.stop()
+        heal_timer.stop()
+        # Остановка таймера для сохранения БД
+        safe_timer.stop()
 
         # При завершении сохранить БД
         DATABASE.safe_changes()

@@ -30,7 +30,7 @@ def game_telegramrpg(message):
     user_id = message.chat.id
 
     if not (user_id in DATABASE.players):
-        BOT.send_message(user_id, welcome)
+        BOT.send_message(user_id, welcome, reply_markup=keyboards.change_class)
         BOT.register_next_step_handler(message, change_class)
     else:
         DATABASE.players[user_id].change_keyboard('TelegramRPG.main')
