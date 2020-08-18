@@ -27,7 +27,7 @@ class Enemy:
 
     # Метод для подсчета выдаваемого опыта за убийство
     def get_exp(self, player_level):
-        percent = self.exp * 0.1
+        percent = int(self.exp * 0.1)
         exp = randint(self.exp - percent, self.exp + percent)
         x = player_level - self.level
         return round((2 * exp) / (1 + math.exp(x / 10)))

@@ -9,26 +9,15 @@ from player import Player
 
 # Функция лечения игроков
 def heal():
-    for i in DATABASE.players:
-        if not DATABASE.players[i].is_death:
-            DATABASE.players[i].heal()
+    for user_id in DATABASE.get_ids():
+        if not DATABASE.get_attr_by_id(user_id, ('is_death',))['is_death']:
+            Player(user_id).heal()
 
 
 # Основной цикл
 def main():
-
-    # Проверка наличия изменений в классе игрока
-    local_player = Player(0, 'local')
-    for i in DATABASE.players:
-        for attr in dir(local_player):
-            if not hasattr(DATABASE.players[i], attr):
-                DATABASE.players[i].attr = eval(f'local_player.{attr}')
-    del local_player
-
     # Создание таймера для лечения игроков
     heal_timer = RepeatedTimer(1, heal)
-    # Создание таймера для сохранения БД
-    safe_timer = RepeatedTimer(30, DATABASE.safe_changes)
     try:
         # Запуск цикла
         BOT.polling()
@@ -40,11 +29,6 @@ def main():
     finally:
         # Остановка таймера для лечения игроков
         heal_timer.stop()
-        # Остановка таймера для сохранения БД
-        safe_timer.stop()
-
-        # При завершении сохранить БД
-        DATABASE.safe_changes()
 
 
 if __name__ == '__main__':

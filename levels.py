@@ -1,4 +1,5 @@
 from calculating import calculate_exponential_grow_with_round
+from config import DATABASE
 
 
 # Создание словаря типа уровень: опыт для перехода на следующий
@@ -13,10 +14,14 @@ for i in range(99):
 
 # Проверка перехода на следующий уровень
 def next_level(player):
-    if player.level >= 100:
+    user_stats = DATABASE.get_attr_by_id(player.id, ('user_level', 'current_exp'))
+    level = user_stats['user_level']
+    current_exp = user_stats['current_exp']
+    if level >= 100:
         return False
-    if player.current_exp >= levels[player.level]:
-        player.current_exp -= levels[player.level]
+    if current_exp >= levels[level]:
+        current_exp -= levels[level]
+        DATABASE.update_by_id(player.id, 'current_exp', current_exp)
         stats = player.next_level()
         return stats
     else:

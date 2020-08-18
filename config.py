@@ -5,14 +5,15 @@ import subprocess
 
 
 # Загрузка PyTelegramBotAPI
-subprocess.run("pip3 install --upgrade PyTelegramBotAPI", shell=True)
+subprocess.run('python.exe -m pip install --upgrade pip', shell=True)
+subprocess.run('pip3 install --upgrade PyTelegramBotAPI', shell=True)
 
 # Создание бота по токену из BotFather
 BOT = Bot(secret.token)  # <--- Свой токен подставлять сюда в ковычках. Пример: "Ваш токен"
 
 # Открытие "базы данных"
-DATABASE = DataBase('Players.data')
+DATABASE = DataBase('C:/Users/Asus/PycharmProjects/Test_Bot/Players.accdb')
 
 # Пересоздание базы данных
 if __name__ == '__main__':
-    DATABASE.remake_database()
+    DATABASE.clearing()
